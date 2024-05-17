@@ -44,3 +44,30 @@ class Artist(models.Model):
         to=Song,
         related_name="artists",
     )
+
+
+# Task 3
+class Product(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+    )
+
+    def __str__(self):
+        return f'{self.name}'
+
+
+class Review(models.Model):
+    description = models.TextField(
+        max_length=200,
+    )
+
+    rating = models.PositiveSmallIntegerField()
+
+    product = models.ForeignKey(
+        to=Product,
+        related_name='reviews',
+        on_delete=models.CASCADE,
+    )
+
+# Task 4

@@ -1,12 +1,12 @@
 import os
 import django
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum, Count
 
 # Set up Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
-from main_app.models import Author, Book, Artist, Song
+from main_app.models import Author, Book, Artist, Song, Product, Review
 
 
 # Task 1
@@ -123,3 +123,52 @@ def remove_song_from_artist(artist_name: str, song_title: str) -> None:
 
 
 # Task 3
+def calculate_average_rating_for_product_by_name(product_name: str) -> float:
+    # total_rating = 0
+    # product = Product.objects.get(name=product_name)
+    # reviews_count = product.reviews.all().count()
+    #
+    # for review in product.reviews.all():
+    #     total_rating += review.rating
+    #
+    # if reviews_count:
+    #     return total_rating / reviews_count
+
+    product = Product.objects.annotate(
+        total_ratings=Sum('reviews__rating'),
+        count_reviews=Count('reviews')
+    ).get(name=product_name)
+
+    average_rating = product.total_ratings / product.count_reviews
+    return average_rating
+
+
+def get_reviews_with_high_ratings(threshold: int) -> QuerySet[Review]:
+    return Review.objects.filter(rating__gte=threshold)
+
+
+def get_products_with_no_reviews() -> QuerySet[Product]:
+    return Product.objects.filter(reviews__isnull=True).order_by('name')
+
+
+def delete_products_without_reviews() -> None:
+    Product.objects.filter(reviews__isnull=True).delete()
+
+# delete_products_without_reviews()
+# print(get_products_with_no_reviews())
+# print(get_reviews_with_high_ratings(5))
+# print(calculate_average_rating_for_product_by_name('Laptop'))
+
+# # Create some products
+# product1 = Product.objects.create(name="Laptop")
+# product2 = Product.objects.create(name="Smartphone")
+# product3 = Product.objects.create(name="Headphones")
+# product4 = Product.objects.create(name="PlayStation 5")
+#
+# # Create some reviews for products
+# review1 = Review.objects.create(description="Great laptop!", rating=5, product=product1)
+# review2 = Review.objects.create(description="The laptop is slow!", rating=2, product=product1)
+# review3 = Review.objects.create(description="Awesome smartphone!", rating=5, product=product2)
+
+
+# Task 4
