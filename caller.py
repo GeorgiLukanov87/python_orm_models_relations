@@ -1,4 +1,6 @@
 import os
+from datetime import date, timedelta
+
 import django
 from django.db.models import QuerySet, Sum, Count
 
@@ -6,7 +8,7 @@ from django.db.models import QuerySet, Sum, Count
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
-from main_app.models import Author, Book, Artist, Song, Product, Review
+from main_app.models import Author, Book, Artist, Song, Product, Review, DrivingLicense, Driver
 
 
 # Task 1
@@ -154,6 +156,7 @@ def get_products_with_no_reviews() -> QuerySet[Product]:
 def delete_products_without_reviews() -> None:
     Product.objects.filter(reviews__isnull=True).delete()
 
+
 # delete_products_without_reviews()
 # print(get_products_with_no_reviews())
 # print(get_reviews_with_high_ratings(5))
@@ -172,3 +175,37 @@ def delete_products_without_reviews() -> None:
 
 
 # Task 4
+
+def calculate_licenses_expiration_dates() -> str:
+    licenses = DrivingLicense.objects.all().order_by('-license_number')
+
+    return '\n'.join(str(l) for l in licenses)
+
+
+def get_drivers_with_expired_licenses(due_date: date) -> QuerySet[Driver]:
+    expiration_off_date = due_date - timedelta(days=365)
+
+    expired_driver = Driver.objects.filter(license__issue_date__gt=expiration_off_date)
+
+    return expired_driver
+
+# Create drivers
+# driver1 = Driver.objects.create(first_name="Tanya", last_name="Petrova")
+# driver2 = Driver.objects.create(first_name="Ivan", last_name="Yordanov")
+
+# Create licenses associated with drivers
+# license1 = DrivingLicense.objects.create(license_number="123", issue_date=date(2022, 10, 6), driver=driver1)
+
+# license2 = DrivingLicense.objects.create(license_number="456", issue_date=date(2022, 1, 1), driver=driver2)
+
+# Calculate licenses expiration dates
+# expiration_dates = calculate_licenses_expiration_dates()
+# print(expiration_dates)
+
+# drivers_with_expired_licenses = get_drivers_with_expired_licenses(date(2023, 1, 1))
+#
+# for driver in drivers_with_expired_licenses:
+#     print(f"{driver.first_name} {driver.last_name} has to renew their driving license!")
+
+
+# Task 5
