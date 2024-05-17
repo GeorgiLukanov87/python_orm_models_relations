@@ -8,7 +8,13 @@ from django.db.models import QuerySet, Sum, Count
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "orm_skeleton.settings")
 django.setup()
 
-from main_app.models import Author, Book, Artist, Song, Product, Review, DrivingLicense, Driver
+from main_app.models import (
+    Author, Book,
+    Artist, Song,
+    Product, Review,
+    DrivingLicense, Driver,
+    Owner, Car, Registration
+)
 
 
 # Task 1
@@ -189,6 +195,7 @@ def get_drivers_with_expired_licenses(due_date: date) -> QuerySet[Driver]:
 
     return expired_driver
 
+
 # Create drivers
 # driver1 = Driver.objects.create(first_name="Tanya", last_name="Petrova")
 # driver2 = Driver.objects.create(first_name="Ivan", last_name="Yordanov")
@@ -209,3 +216,34 @@ def get_drivers_with_expired_licenses(due_date: date) -> QuerySet[Driver]:
 
 
 # Task 5
+
+def register_car_by_owner(owner: Owner):
+    registration = Registration.objects.filter(car__isnull=True).first()
+    car = Car.objects.filter(registration__isnull=True).first()
+
+    car.owner = owner
+    car.registration_set = registration
+    car.save()
+
+    registration.registration_date = date.today()
+    registration.car = car
+    registration.save()
+
+    return (
+        f"Successfully registered {car.model} to "
+        f"{owner.name} with registration number"
+        f" {registration.registration_number}."
+    )
+
+# # Create owners
+# owner1 = Owner.objects.create(name='Ivelin Milchev')
+# owner2 = Owner.objects.create(name='Alice Smith')
+#
+# # Create cars
+# car1 = Car.objects.create(model='Citroen C5', year=2004)
+# car2 = Car.objects.create(model='Honda Civic', year=2021)
+# # Create instances of the Registration model for the cars
+# registration1 = Registration.objects.create(registration_number='TX0044XA')
+# registration2 = Registration.objects.create(registration_number='XYZ789')
+#
+# print(register_car_by_owner(owner1))
