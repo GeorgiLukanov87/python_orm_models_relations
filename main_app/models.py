@@ -104,7 +104,7 @@ class DrivingLicense(models.Model):
         return f"License with number: {self.license_number} expires on {expiration_date}!"
 
 
-# Task 5
+# Task 5 and Task 6
 
 class Owner(models.Model):
     name = models.CharField(
